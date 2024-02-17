@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Link} from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import axios from 'axios';
 
 function Register() {
@@ -9,13 +9,20 @@ function Register() {
         email:'',
         password:''
     })
+    const navigate = useNavigate();
 
     const submit = async(e) => {
         e.preventDefault();
         try{
             const result = await axios.post('http://localhost:1000/register',values);
             console.log(result)
-            alert(result.data.Status);
+            if(result.data.Status === 'Registered Successfully'){
+                alert(result.data.Status);
+                navigate('/signIn');
+            }else{
+                alert(result.data.Error);
+            }
+            
 
         }catch(err){
             console.error(err);
