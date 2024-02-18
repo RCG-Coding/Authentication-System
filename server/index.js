@@ -22,6 +22,26 @@ const db = mysql.createConnection({
 });
     db.connect();
 
+const verifyUser = (req, res, next) => {
+    const token = req.cookies.token;
+    if(!token){
+        return res.json({Error: 'You are not authorized'})
+    }else{
+        jwt.verify(token, 'jwt-secret-key', (err, decoded) => {
+            if(err){
+                return res.json({Error: 'Token is not ok'})
+            }else{
+                req.name = decoded.name;
+                next();
+            }
+        })
+    }
+}
+
+app.get('/', verifyUser, (req, res) => {
+    return res.json({Status:'Success', name:req.name});
+})
+
 //register
 app.post('/register', (req, res) => {
     const data = req.body;
@@ -78,6 +98,11 @@ app.post('/signIn', (req, res) => {
         }
     });
 });
+
+app.get('/logOut', (req, res) => {
+    res.clearCookie('token');
+    return res.json({Status:'Success'});
+})
 
 
 app.listen(1000,()=>{
